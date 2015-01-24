@@ -20,7 +20,7 @@
 #include <PrecisionADC.h>
 
 void PrecisionADC::begin() {
-    SPI.begin();
+    _spi->begin();
     pinMode(_adcPin, OUTPUT);
     pinMode(_dacPin, OUTPUT);
     digitalWrite(_adcPin, HIGH);
@@ -31,24 +31,35 @@ void PrecisionADC::setReference(uint16_t mv) {
     mv &= 0x0FFF;
     _vref = mv;
     mv |= 0x1000;
-    SPI.setDataMode(SPI_MODE0);
-    SPI.setClockDivider(SPI_CLOCK_DIV2);
+#ifdef __PIC32MX__
+    _spi->setMode(DSPI_MODE0);
+    _spi->setSpeed(10000000UL);
+#else
+    _spi->setDataMode(SPI_MODE0);
+    _spi->setClockDivider(SPI_CLOCK_DIV2);
+#endif
 
     digitalWrite(_dacPin, LOW);
-    SPI.transfer(mv >> 8);
-    SPI.transfer(mv & 0xFF);
+    _spi->transfer(mv >> 8);
+    _spi->transfer(mv & 0xFF);
     digitalWrite(_dacPin, HIGH);
 }
 
 void PrecisionADC::setVOut(uint16_t mv) {
     mv &= 0x0FFF;
     mv |= 0x9000;
-    SPI.setDataMode(SPI_MODE0);
-    SPI.setClockDivider(SPI_CLOCK_DIV2);
+
+#ifdef __PIC32MX__
+    _spi->setMode(DSPI_MODE0);
+    _spi->setSpeed(10000000UL);
+#else
+    _spi->setDataMode(SPI_MODE0);
+    _spi->setClockDivider(SPI_CLOCK_DIV2);
+#endif
 
     digitalWrite(_dacPin, LOW);
-    SPI.transfer(mv >> 8);
-    SPI.transfer(mv & 0xFF);
+    _spi->transfer(mv >> 8);
+    _spi->transfer(mv & 0xFF);
     digitalWrite(_dacPin, HIGH);
 }
 
@@ -56,12 +67,18 @@ int32_t PrecisionADC::read() {
     int32_t out = 0;
     digitalWrite(_adcPin, LOW);
     delay(20);
-    SPI.setDataMode(SPI_MODE3);
-    SPI.setClockDivider(SPI_CLOCK_DIV2);
 
-    uint8_t bh = SPI.transfer(0xFF);
-    uint8_t bm = SPI.transfer(0xFF);
-    uint8_t bl = SPI.transfer(0xFF);
+#ifdef __PIC32MX__
+    _spi->setMode(DSPI_MODE3);
+    _spi->setSpeed(10000000UL);
+#else
+    _spi->setDataMode(SPI_MODE3);
+    _spi->setClockDivider(SPI_CLOCK_DIV2);
+#endif
+
+    uint8_t bh = _spi->transfer(0xFF);
+    uint8_t bm = _spi->transfer(0xFF);
+    uint8_t bl = _spi->transfer(0xFF);
     digitalWrite(_adcPin, HIGH);
 
     out = ((uint32_t)bh << 16) | ((uint32_t)bm << 8) | (uint32_t)bl;
@@ -75,6 +92,13 @@ int32_t PrecisionADC::read() {
         _overflow = 1;
     }
 
+#ifdef __PIC32MX__
+    _spi->setMode(DSPI_MODE0);
+    _spi->setSpeed(10000000UL);
+#else
+    _spi->setDataMode(SPI_MODE0);
+    _spi->setClockDivider(SPI_CLOCK_DIV2);
+#endif
     return out;
 }
 

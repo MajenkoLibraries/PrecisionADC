@@ -26,21 +26,34 @@
 # include <WProgram.h>
 #endif
 
+#ifdef __PIC32MX__
+#include <DSPI.h>
+#else
 #include <SPI.h>
+#endif
 
 class PrecisionADC {
     public:
-        // Private functions and variables here.  They can only be accessed
-        // by functions within the class.
+    #ifdef __PIC32MX__
+        DSPI *_spi;
+    #else
+        SPIClass *_spi;
+    #endif
         uint8_t _adcPin;
         uint8_t _dacPin;
         uint16_t _vref;
         uint8_t _overflow;
 
+
     public:
         // Public functions and variables.  These can be accessed from
         // outside the class.
-        PrecisionADC(uint8_t adc, uint8_t dac) : _adcPin(adc), _dacPin(dac) {}
+    #ifdef __PIC32MX__
+        PrecisionADC(DSPI *spi, uint8_t adc, uint8_t dac) : _spi(spi), _adcPin(adc), _dacPin(dac) {}
+        PrecisionADC(DSPI &spi, uint8_t adc, uint8_t dac) : _spi(&spi), _adcPin(adc), _dacPin(dac) {}
+    #else
+        PrecisionADC(uint8_t adc, uint8_t dac) : _spi(&SPI), _adcPin(adc), _dacPin(dac) {}
+    #endif
         void begin();
         void setReference(uint16_t mv);
         void setVOut(uint16_t mv);
