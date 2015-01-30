@@ -1,0 +1,4 @@
+LICENSE usr/share/doc/libprecisionadc/
+PrecisionADC.cpp libraries/IO/PrecisionADC/
+PrecisionADC.h libraries/IO/PrecisionADC/
+README.md usr/share/doc/libprecisionadc/
