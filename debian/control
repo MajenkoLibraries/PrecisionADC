@@ -8,5 +8,6 @@ Standards-Version: 3.9.4
 
 Package: libprecisionadc
 Architecture: all
+Provides: PrecisionADC.h
 Description: PrecisionADC library
 
