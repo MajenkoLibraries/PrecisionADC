@@ -40,8 +40,8 @@ void PrecisionADC::setReference(uint16_t mv) {
 #endif
 
     digitalWrite(_dacPin, LOW);
-    _spi->transfer(mv >> 8);
-    _spi->transfer(mv & 0xFF);
+    _spi->transfer((uint8_t)(mv >> 8));
+    _spi->transfer((uint8_t)(mv & 0xFF));
     digitalWrite(_dacPin, HIGH);
 }
 
@@ -58,8 +58,8 @@ void PrecisionADC::setVOut(uint16_t mv) {
 #endif
 
     digitalWrite(_dacPin, LOW);
-    _spi->transfer(mv >> 8);
-    _spi->transfer(mv & 0xFF);
+    _spi->transfer((uint8_t)(mv >> 8));
+    _spi->transfer((uint8_t)(mv & 0xFF));
     digitalWrite(_dacPin, HIGH);
 }
 
@@ -76,9 +76,9 @@ int32_t PrecisionADC::read() {
     _spi->setClockDivider(SPI_CLOCK_DIV2);
 #endif
 
-    uint8_t bh = _spi->transfer(0xFF);
-    uint8_t bm = _spi->transfer(0xFF);
-    uint8_t bl = _spi->transfer(0xFF);
+    uint8_t bh = _spi->transfer((uint8_t)0xFF);
+    uint8_t bm = _spi->transfer((uint8_t)0xFF);
+    uint8_t bl = _spi->transfer((uint8_t)0xFF);
     digitalWrite(_adcPin, HIGH);
 
     out = ((uint32_t)bh << 16) | ((uint32_t)bm << 8) | (uint32_t)bl;
